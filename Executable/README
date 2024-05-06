@@ -1,0 +1,84 @@
+Last updated 4/14/24
+
+Developed by Dylan Williams, Rafiedul Islam, Olivia Brague, Vincent Fealy
+
+This executable is the bread and butter of the project, allowing the user to either scrape data off the web or upload their own data, have it classified by a machine learning algorithm, and then either uploaded to our website https://climat3.web.app/index.html or redownloaded for uploading to Zotero. The organizational structure of this portion of the project was developed by Dylan, as well as anything regarding the uploading/downloading of CSL JSON files, uploading to the website, and some of the basic TKinkter functionality. The design of the executable and functionality of the web scraper is Rafi's work, and the machine learning aspects are Olivia's.
+
+In more detail, the workflow of the executable is as follows. The user sees a main menu screen that allows them to either scrape data off of two predetermined websites or upload their own data. If the user decides to scrape data, they must go decide between two websites, enter a term to scrape, and how many pages to scrape. The program then automatically scrapes this data, runs it through our machine learning algorithm, and allows the user the choice to discard the data or upload it to the website. If the user uploads their own data to the executable, they are prompted to input a CSL JSON file, which is one of the forms Zotero allows exporting of. The program then reads this data, runs it through the machine learning, and gives it a tag, then allowing the user to discard the data or download it as a CSL JSON for re-importing into Zotero.
+
+List of dependencies (as commands I ran to install them):
+pip install firebase-admin
+pip install -U scikit-learn
+pip install pandas
+pip install spacy      
+pip install beautifulsoup4
+pip install requests
+pip install tkinter
+pip install re
+pip install itertools
+python -m spacy download en_core_web_sm
+
+
+
+
+Some notes about the Web Scraping aspects:
+The web scraper scrapes data from the websites Pubmed and Springer. 
+Author of web Scraper: Rafiedul Islam and Dylan Williams
+
+The web scraper uses three files in order to perform its tasks. The websites are being parsed in the file websiteScraping.py. Here open pages on the website selected( either pubmed or springer) and parse the contents of each article per page in the website using beautiful soup. The data being collected consists of title, author name(s) and affiliation(s), publication, abstract, issue, volume, ISSN, keywords and the url link of the article. The scraper will also calculate how much data is missing and display the percentage of missing data for each search to the application. 
+
+Next the two other files need for the web scraper is  main.py and fileFunctions.py. main.py creates the interface for the web scraper, it takes user input such as website, search term and number of pages and transfers it to the websiteScraping.py file to perform the parsing. The file functions simply allows the scraper to pass the scraped information into the website or allows the user to download it. 
+
+How the web scraper is used : 
+
+When you start the scraper in the main menu you can choose to upload your own file of articles for machine learning or choose to scrape from the website. When you hit scrape from website you will be taken to the scraping screen. You must perform click each button sequentially. So first you choose the website you want to scrape from. Hit either pubmed or springer. Next enter your search term in the search term box. Then you can choose the pages you want to scrape. Be sure to enter the starting page you want followed by the ending page. For example if you want results from page 5 to 7 you must enter 5 on the first box and 7 on the second. If you only want 1 page enter the same page number twice( so if you want only page 9 enter 9,9). You can now hit scrape and wait till the scraping process finishes. Once it scrapes all of the articles it will categorize with machine learning(explained below). Once its done doing that it will display how much data was missing( if it missed like the publication date or something) you can decide to discard and scrape again or you can upload it to the website. Once you hit upload it will print a success message alerting you that the data you've scraped has gone to the website. 
+
+The web scraper can be still further improved, it can be modified to run a bit faster, it also has minor bugs due to parsing restrictions, some fields we need to parse are missing in the website. 
+
+
+
+
+
+Some notes about the Machine Learning aspects:
+The dataset for this machine learning algorithm was provided by Dr. Karl Maier through Zotero.
+Author of this read me: Olivia Brague
+
+The two files: machineLearning.py is the file that is being accessed by the main of the tkinter executable. It uses the SVM algorithm to make predictions on new data provided to it. SVMclassifier.py exists as a means for me to test out the algorithm with the data provided to me and to print out things such as a classification report to evaluate the algorithms performance. SVMclassifier.py is not necessary for the executable to work, but is important for testing.
+
+Status of the dataset: In its current state, the dataset does not have as many entries as
+we would hope for it to have. Dr. Maier is currently working on adding more onto the dataset
+in order to better aid the machine learning algorithm. This is an ongoing process and 
+at the point that I am writing this we do not have that dataset.
+
+Reasoning for choosing SVM: I chose SVM after running a series of experiments on the dataset using
+different algorithms. I found that overall SVM performs consistently better than the other algorithms
+for this particular set of data. I also performed hyperparameter tuning to select the best set
+of parameters for SVM. With the future expansion of the dataset, the best algorithm or parameters
+could be subject to change so more experiementation may be needed.
+
+Right now, in order to better increase the performance of the algorithm with the current state of the
+dataset, I have decided to only use the three main categories of biophysical, social, and psychological
+for classification instead of the subcategories as I feel that in its current state the subcategories
+are causing a lot of confusion for the algorithm. In the future, if the dataset gets more examples,
+it may be appropriate to add in the subcategories again instead of just the main categories.
+
+Despite this, there seems to be a bug where the algorithm will not classify articles as psychological. There is a good balance of classification between social and biophysical, but no psychological at all. I have tried to figure out how to fix this but at this point have resigned to just accepting that it is just another issue with class imbalance, as the psychological part of the dataset has significantly less articles than social and biophysical.
+
+Dataset	    SVM	Random Forest Logistic Regression Decision Tree Naive Bayes MLP
+3 category	58%	52.60%	      51%	              51%	        42%	        57%
+12 category	21%	14%	          11%	              17%	        9%	        15%
+						
+SVM	            C	Gamma	Kernel			
+Best Parameters	1	Scale	Linear			
+						
+Random Forest	Estimators Max depth Type			
+Best Parameters	50	       20	     Entropy			
+
+I attempted to try pickling the algorithm in order to have the slow part of vectorization be done ahead of time.
+The file I used to make the pickle file is still here if someone wishes to attempt to try to use it again, but we found it was
+taking just as long to load it as it would to just do the vectorization.
+
+
+
+Some notes about the Firebase:
+Right now we currently have a file called "FirebaseInfo.json" not being added to the github due to security issues involving the database. If your version of the project does not have this file, the program will not run correctly if at all. To find this file, visit the console website https://console.firebase.google.com/u/3/project/climat3/overview with the correct account logged in tiei.org.cloud@gmail.com. 
